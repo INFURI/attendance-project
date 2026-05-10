@@ -4,7 +4,7 @@ import time
 from rfid_reader import get_uid
 from uid_manager import add_user
 
-#INPUT
+
 person_name = input("Enter person name/ID: ").strip()
 
 if not person_name:
@@ -13,23 +13,20 @@ if not person_name:
 
 print("Now scan RFID card...")
 
-#GET UID
 uid = None
 while not uid:
     uid = get_uid()
 
 print("Scanned UID:", uid)
 
-#SAVE UID
 add_user(uid, person_name)
 
-#DATASET SETUP
 dataset_path = "dataset"
 person_folder = os.path.join(dataset_path, person_name)
 
 os.makedirs(person_folder, exist_ok=True)
 
-#CAMERA
+
 cap = cv2.VideoCapture(0)
 
 if not cap.isOpened():
