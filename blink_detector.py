@@ -13,15 +13,15 @@ def detect_blink(face_gray):
 
     eyes = eye_cascade.detectMultiScale(face_gray, 1.2, 5)
 
-    # Eyes present
+    
     if len(eyes) >= 1:
         if not blink_state["eyes_detected"]:
-            # Eyes came back → blink completed
+            
             blink_state["blink_detected"] = True
         blink_state["eyes_detected"] = True
 
     else:
-        # Eyes not detected
+       
         blink_state["eyes_detected"] = False
 
     return blink_state["blink_detected"]
