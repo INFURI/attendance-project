@@ -33,17 +33,18 @@ labels = np.array(labels)
 print("Training data ready")
 print("Labels:", label_map)
 
-# Train LBPH recognizer
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.train(faces, labels)
 
-# Save model
 recognizer.save("face_model.yml")
 
-# Save label map for automatic recognition
 import json
 with open("labels.json", "w") as f:
     json.dump(label_map, f)
-
 print("Model trained and saved as face_model.yml")
 print("Labels saved as labels.json")
+
+
+
+
+
