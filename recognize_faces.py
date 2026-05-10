@@ -4,22 +4,18 @@ import os
 import numpy as np
 from collections import deque, Counter
 
-#LOAD FACE DETECTOR
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
 
-#LOAD LBPH MODEL
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read("face_model.yml")
 
-#LOAD LABEL MAP
 with open("labels.json", "r") as f:
     label_map = json.load(f)
 
 label_map = {int(k): v for k, v in label_map.items()}
 
-#LOAD TEMPLATES (FALLBACK)
 dataset_path = "dataset"
 templates = []
 template_labels = []
@@ -42,7 +38,6 @@ for person_name in os.listdir(dataset_path):
 templates = np.array(templates)
 template_labels = np.array(template_labels)
 
-# ---------- TEMPLATE FALLBACK ----------
 def template_verify(face_roi):
     best_score = float('inf')
     best_label = "Unknown"
@@ -57,10 +52,8 @@ def template_verify(face_roi):
         return best_label
     return "Unknown"
 
-#TEMPORAL SMOOTHING BUFFER
 history = deque(maxlen=5)
 
-#MAIN RECOGNITION FUNCTION
 def recognize_face(frame):
     global history
 
@@ -76,7 +69,6 @@ def recognize_face(frame):
     results = []
 
     for (x, y, w, h) in faces:
-        # Padding
         pad = 10
         x1 = max(0, x - pad)
         y1 = max(0, y - pad)
@@ -89,7 +81,6 @@ def recognize_face(frame):
 
         label, confidence = recognizer.predict(face)
 
-        # Decision logic
         if confidence < 80:
             name = label_map[label]
         elif confidence < 100:
@@ -97,14 +88,11 @@ def recognize_face(frame):
         else:
             name = "Unknown"
 
-        # TEMPORAL SMOOTHING 
         history.append((name, confidence))
 
-        # Majority voting
         names = [h[0] for h in history]
         most_common = Counter(names).most_common(1)[0][0]
 
-        # Average confidence
         avg_conf = sum([h[1] for h in history]) / len(history)
 
         results.append((most_common, avg_conf, (x, y, w, h)))
@@ -112,7 +100,6 @@ def recognize_face(frame):
     return results
 
 
-# TEST MODE 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
 
