@@ -1,6 +1,5 @@
 import cv2
 
-# Load OpenCV's prebuilt face cascade
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
 cap = cv2.VideoCapture(0)
