@@ -1,11 +1,9 @@
 import cv2
 import json
 
-#LOAD MODEL
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read("face_model.yml")
 
-#LOAD LABEL MAP
 with open("labels.json", "r") as f:
     label_map = json.load(f)
 
@@ -17,7 +15,6 @@ def verify_face(face, expected_name):
 
     predicted_name = label_map[label]
 
-    #  LBPH confidence 
     if predicted_name == expected_name and confidence < 90:
         return True, confidence, predicted_name
 
