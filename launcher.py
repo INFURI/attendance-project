@@ -20,9 +20,9 @@ def train_model():
     run_script("train_faces.py")
 
 def view_attendance():
-    os.startfile("attendance.xlsx")  # Windows only
+    os.startfile("attendance.xlsx")  
 
-# ---------- UI ----------
+
 tk.Label(root, text="Smart Attendance System",
          font=("Arial", 16), bg="#1e1e1e", fg="white").pack(pady=20)
 
