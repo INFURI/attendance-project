@@ -4,25 +4,22 @@ from rfid_reader import get_uid
 from attendance import mark_attendance
 from face_verifier import verify_face
 from uid_manager import load_uid_map
-
-
-#  NEW IMPORTS
 from blink_detector import detect_blink, reset_blink
 from sound import success_sound, error_sound
 
 
-# ---------- LOAD UID MAP ----------
+
 uid_to_name = load_uid_map()
 
-# ---------- FACE DETECTOR ----------
+
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
 
-# ---------- CAMERA ----------
+
 cap = cv2.VideoCapture(0)
 
-# ---------- STATE ----------
+
 mode = "IDLE"
 current_uid = None
 uid_time = 0
@@ -35,7 +32,8 @@ print("System Ready. Scan RFID card...")
 
 while True:
 
-    # ---------- RFID SCAN ----------
+    
+    
     uid = get_uid()
     if uid and uid in uid_to_name:
         current_uid = uid
@@ -43,14 +41,16 @@ while True:
         mode = "WAIT_FACE"
         print(f"Card scanned for {uid_to_name[uid]}. Show face.")
 
-    # ---------- TIMEOUT ----------
+    
+    
     if mode == "WAIT_FACE" and (time.time() - uid_time > uid_timeout):
         print("Timeout. Please scan again.")
         mode = "IDLE"
         current_uid = None
         reset_blink()
 
-    # ---------- CAMERA FRAME ----------
+   
+    
     ret, frame = cap.read()
     if not ret:
         break
@@ -59,7 +59,8 @@ while True:
 
     status_text = "Scan RFID"
 
-    # ---------- FACE VERIFICATION ----------
+   
+    
     if mode == "WAIT_FACE":
 
         faces = face_cascade.detectMultiScale(
@@ -73,7 +74,7 @@ while True:
 
         for (x, y, w, h) in faces:
 
-            # ---------- STABLE CROP ----------
+           
             pad = 20
             x1 = max(0, x - pad)
             y1 = max(0, y - pad)
@@ -83,19 +84,19 @@ while True:
             face = gray[y1:y2, x1:x2]
             face = cv2.resize(face, (100, 100))
 
-            # ---------- LIGHT NORMALIZATION ----------
+            
             face = cv2.equalizeHist(face)
 
-            # ---------- VERIFY ----------
+           
             match, confidence, predicted_name = verify_face(face, expected_name)
 
-            # ---------- BLINK ----------
+           
             blink_ok = detect_blink(face)
 
-            # ---------- DEBUG ----------
+           
             print(f"Predicted: {predicted_name}, Expected: {expected_name}, Confidence: {confidence:.2f}, Blink: {blink_ok}")
 
-            # ---------- DECISION ----------
+           
             if match and blink_ok:
 
                 if time.time() - last_mark_time > cooldown:
@@ -108,7 +109,7 @@ while True:
                         last_mark_time = time.time()
                         reset_blink()
 
-                        # RESET SYSTEM
+                        
                         time.sleep(1)
                         mode = "IDLE"
                         current_uid = None
@@ -125,7 +126,7 @@ while True:
                 error_sound()
                 color = (0, 0, 255)
 
-            # ---------- DISPLAY ----------
+            
             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 
             cv2.putText(frame,
@@ -136,7 +137,7 @@ while True:
                         (255, 0, 0),
                         2)
 
-            #  BLINK STATUS ON SCREEN
+          
             cv2.putText(frame,
                         f"Blink: {'YES' if blink_ok else 'NO'}",
                         (20, 70),
@@ -145,7 +146,7 @@ while True:
                         (255, 255, 0),
                         2)
 
-    # ---------- UI STATUS ----------
+   
     if mode == "IDLE":
         status_text = "Scan RFID"
     elif mode == "WAIT_FACE":
